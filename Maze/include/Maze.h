@@ -13,6 +13,7 @@
 #include<iostream>
 #include <Timer.h>
 #include <math.h>       /* ceil */
+#include <vector>
 
 using namespace std;
 
@@ -46,7 +47,6 @@ class Maze
       bool liveChest;                     // status of the chest (collected or not)
       bool liveSetOfArrws;                // status of the arrows(collected or not)
 
-      bool isWall(int x, int y);
 
     protected:
 
@@ -62,5 +62,6 @@ class Maze
       loc setOfArrsLoc;                    // arrows Location
       loc converter(int, int);             // convert grid size to viewport
 };
+
 
 #endif // MAZE_H
