@@ -6,6 +6,8 @@
 #include <string.h>
 #include <CommonThings.h>
 #include <Maze.h>
+#include <time.h>
+#include <stdlib.h>
 #include <iostream>
 #include <Timer.h>
 #include <player.h>
@@ -32,7 +34,7 @@ Player *P = new Player();                       // create player
 wall W[100];                                    // wall with number of bricks
 Enemies E[10];                                  // create number of enemies
 Timer *T0 = new Timer();                        // animation timer
-
+int **WallMatrix;
 float wWidth, wHeight;                          // display window width and Height
 float xPos,yPos;                                // Viewpoar mapping
 
@@ -80,10 +82,34 @@ void init()
     P->loadArrowImage("images/arr.png");                // Load arrow image
     P->placePlayer(9,9);                                // Place player
 
+
+   WallMatrix = new int*[M->getGridSize()+1];
+
+    for(int i = 0; i <= M->getGridSize(); i++){
+
+        WallMatrix[i] = new int[M->getGridSize()+1];
+
+        for (int j = 0; j <= M->getGridSize(); j++){
+            WallMatrix[i][j] = 0;
+        }
+   }
+
+    int x = 0;
+    int y = 0;
+    srand(time(NULL));
     for(int i=1; i< M->getGridSize();i++)
     {
-      W[i].wallInit(M->getGridSize(),"images/wall.png");// Load walls
-      W[i].placeWall(i,5);                              // place each brick
+        WallMatrix[0][i] = 1;
+        WallMatrix[i][0] = 1;
+        WallMatrix[M->getGridSize()][i] = 1;
+        WallMatrix[i][M->getGridSize()] = 1;
+        x = rand() % M->getGridSize();
+        y = rand() % M->getGridSize();
+        if (WallMatrix[x][y] == 0){
+            W[i].wallInit(M->getGridSize(),"images/wall.png");// Load walls
+            W[i].placeWall(x,y);                                // place each brick
+            WallMatrix[x][y] = 1;
+        }
     }
 
 
@@ -136,7 +162,6 @@ void display(void)
 
     glutSwapBuffers();
 }
-
 
 
 
@@ -212,6 +237,13 @@ void mouse(int btn, int state, int x, int y){
      glutPostRedisplay();
 };
 
+int up_counter = 0;
+int down_counter = 0;
+int left_counter = 0;
+int right_counter = 0;
+
+
+
 void Specialkeys(int key, int x, int y)
 {
 
@@ -219,37 +251,129 @@ void Specialkeys(int key, int x, int y)
     switch(key)
     {
     case GLUT_KEY_UP:
-         cout<< P->getPlayerLoc().x<< "    "<<P->getPlayerLoc().y<<endl;
-         P->movePlayer("up");
-         E[0].moveEnemy("up");
-         E[1].moveEnemy("up");
-         E[2].moveEnemy("up");
-    break;
+        if (WallMatrix[P->getPlayerLoc().x][P->getPlayerLoc().y+1] == 0){
+            cout<< P->getPlayerLoc().x<< "    "<<P->getPlayerLoc().y<<endl;
+            P->movePlayer("up");
+            E[0].moveEnemy("up");
+            E[1].moveEnemy("up");
+            E[2].moveEnemy("up");
+            up_counter = 0;
+            down_counter--;
+            //left_counter = 0;
+          //  right_counter = 0;
+            break;
+        }
+        else if (WallMatrix[P->getPlayerLoc().x][P->getPlayerLoc().y+1] != 0){
+            if (up_counter < 5){
+                cout << "Rawr Wall incoming D:< " << up_counter << endl;
+                cout << W[2].GetWallLoc.x << W[2].GetWallLoc.y << endl;
+                cout<< P->getPlayerLoc().x<< "    "<<P->getPlayerLoc().y<<endl;
+                P->movePlayer("up");
+                E[0].moveEnemy("up");
+                E[1].moveEnemy("up");
+                E[2].moveEnemy("up");
+                up_counter++;
+                down_counter--;
+                break;
+            }
+            else{
+                break;
+            }
+        }
 
     case GLUT_KEY_DOWN:
-         cout<< P->getPlayerLoc().x<< "    "<<P->getPlayerLoc().y<<endl;
-         P->movePlayer("down");
-         E[0].moveEnemy("down");
-         E[1].moveEnemy("down");
-         E[2].moveEnemy("down");
-    break;
+       if (WallMatrix[P->getPlayerLoc().x][P->getPlayerLoc().y-1] == 0){
+            cout<< P->getPlayerLoc().x<< "    "<<P->getPlayerLoc().y<<endl;
+            P->movePlayer("down");
+            E[0].moveEnemy("down");
+            E[1].moveEnemy("down");
+            E[2].moveEnemy("down");
+            up_counter--;
+            down_counter = 0;
+           // left_counter = 0;
+           // right_counter = 0;
+            break;
+        }
+        else if (WallMatrix[P->getPlayerLoc().x][P->getPlayerLoc().y-1] != 0){
+            if (down_counter < 5){
+                cout << "Rawr Wall incoming D:< " << up_counter << endl;
+                cout << W[2].GetWallLoc.x << W[2].GetWallLoc.y << endl;
+                cout<< P->getPlayerLoc().x<< "    "<<P->getPlayerLoc().y<<endl;
+                P->movePlayer("down");
+                E[0].moveEnemy("down");
+                E[1].moveEnemy("down");
+                E[2].moveEnemy("down");
+                down_counter++;
+                up_counter--;
+
+                break;
+            }
+            else{
+                break;
+            }
+        }
 
     case GLUT_KEY_LEFT:
-         cout<< P->getPlayerLoc().x<< "    "<<P->getPlayerLoc().y<<endl;
-         P->movePlayer("left");
-         E[0].moveEnemy("left");
-         E[1].moveEnemy("left");
-         E[2].moveEnemy("left");
-
-    break;
+        if (WallMatrix[P->getPlayerLoc().x-1][P->getPlayerLoc().y] == 0){
+            cout<< P->getPlayerLoc().x<< "    "<<P->getPlayerLoc().y<<endl;
+            P->movePlayer("left");
+            E[0].moveEnemy("left");
+            E[1].moveEnemy("left");
+            E[2].moveEnemy("left");
+            //up_counter = 0;
+           //down_counter = 0;
+            left_counter = 0;
+            right_counter--;
+            break;
+        }
+        else if (WallMatrix[P->getPlayerLoc().x-1][P->getPlayerLoc().y] != 0){
+            if (left_counter < 5){
+                cout << "Rawr Wall incoming D:< " << up_counter << endl;
+                cout << W[2].GetWallLoc.x << W[2].GetWallLoc.y << endl;
+                cout<< P->getPlayerLoc().x<< "    "<<P->getPlayerLoc().y<<endl;
+                P->movePlayer("left");
+                E[0].moveEnemy("left");
+                E[1].moveEnemy("left");
+                E[2].moveEnemy("left");
+                left_counter++;
+                right_counter--;
+                break;
+            }
+            else{
+                break;
+            }
+        }
 
     case GLUT_KEY_RIGHT:
-         cout<< P->getPlayerLoc().x<< "    "<<P->getPlayerLoc().y<<endl;
-         P->movePlayer("right");
-         E[0].moveEnemy("right");
-         E[1].moveEnemy("right");
-         E[2].moveEnemy("right");
-    break;
+        if (WallMatrix[P->getPlayerLoc().x+1][P->getPlayerLoc().y] == 0){
+            cout<< P->getPlayerLoc().x<< "    "<<P->getPlayerLoc().y<<endl;
+            P->movePlayer("right");
+            E[0].moveEnemy("right");
+            E[1].moveEnemy("right");
+            E[2].moveEnemy("right");
+           // up_counter = 0;
+            //down_counter = 0;
+            left_counter--;
+            right_counter = 0;
+            break;
+        }
+        else if (WallMatrix[P->getPlayerLoc().x+1][P->getPlayerLoc().y] != 0){
+            if (right_counter < 5){
+                cout << "Rawr Wall incoming D:< " << up_counter << endl;
+                cout << W[2].GetWallLoc.x << W[2].GetWallLoc.y << endl;
+                cout<< P->getPlayerLoc().x<< "    "<<P->getPlayerLoc().y<<endl;
+                P->movePlayer("right");
+                E[0].moveEnemy("right");
+                E[1].moveEnemy("right");
+                E[2].moveEnemy("right");
+                right_counter++;
+                left_counter--;
+                break;
+            }
+            else{
+                break;
+            }
+        }
 
    }
   glutPostRedisplay();

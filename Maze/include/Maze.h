@@ -46,6 +46,7 @@ class Maze
       bool liveChest;                     // status of the chest (collected or not)
       bool liveSetOfArrws;                // status of the arrows(collected or not)
 
+      bool isWall(int x, int y);
 
     protected:
 

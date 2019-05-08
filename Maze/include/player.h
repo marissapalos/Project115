@@ -40,11 +40,15 @@ class Player
 
         bool arrowStatus;                  // arrow is active or not
         bool livePlayer;                   // Player live or dead
+
+        int gridSize;                       // Grid Size
+
     protected:
+
 
         float t;                           // Ticker for animation
         void timer();                      // Timer for animation
-        int gridSize;                      // Grid Size
+
         float unitWidth;                   // Unit width of the grid
 
     private:
