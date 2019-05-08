@@ -325,8 +325,6 @@ void Specialkeys(int key, int x, int y)
             E[0].moveEnemy("left");
             E[1].moveEnemy("left");
             E[2].moveEnemy("left");
-           // up_counter = 0;
-           //down_counter = 0;
             left_counter = 0;
             right_counter--;
             break;
@@ -356,8 +354,6 @@ void Specialkeys(int key, int x, int y)
             E[0].moveEnemy("right");
             E[1].moveEnemy("right");
             E[2].moveEnemy("right");
-           // up_counter = 0;
-            //down_counter = 0;
             left_counter--;
             right_counter = 0;
             break;
