@@ -7,11 +7,6 @@
 			<Cursor1 position="283" topLine="15" />
 		</Cursor>
 	</File>
-	<File name="include\Maze.h" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="2" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1019" topLine="0" />
-		</Cursor>
-	</File>
 	<File name="include\Timer.h" open="1" top="0" tabpos="11" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="81" topLine="0" />
@@ -29,7 +24,7 @@
 	</File>
 	<File name="main.cpp" open="1" top="1" tabpos="3" split="0" active="1" splitpos="0" zoom_1="3" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="10162" topLine="343" />
+			<Cursor1 position="10737" topLine="184" />
 		</Cursor>
 	</File>
 	<File name="src\Enemies.cpp" open="1" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="7" zoom_2="0">
@@ -37,14 +32,14 @@
 			<Cursor1 position="1459" topLine="38" />
 		</Cursor>
 	</File>
+	<File name="src\wall.cpp" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="999" topLine="42" />
+		</Cursor>
+	</File>
 	<File name="src\Maze.cpp" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="3" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="953" topLine="39" />
-		</Cursor>
-	</File>
-	<File name="src\Timer.cpp" open="1" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="245" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="include\Enemies.h" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -52,14 +47,19 @@
 			<Cursor1 position="1586" topLine="10" />
 		</Cursor>
 	</File>
+	<File name="include\Maze.h" open="1" top="0" tabpos="1" split="0" active="1" splitpos="0" zoom_1="2" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1019" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="src\Timer.cpp" open="1" top="0" tabpos="12" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="245" topLine="0" />
+		</Cursor>
+	</File>
 	<File name="src\player.cpp" open="1" top="0" tabpos="8" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
 			<Cursor1 position="4084" topLine="166" />
-		</Cursor>
-	</File>
-	<File name="src\wall.cpp" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="999" topLine="42" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>
