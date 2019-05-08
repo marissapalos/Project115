@@ -27,7 +27,7 @@ class Player
         void drawArrow();                  // Draw Arrow
         void shootArrow();                 // Shoot arrow movement
 
-        void initPlayer(int,int,char *);  // initialize the player with grid size, image, frames
+        void initPlayer(int,char *, int);  // initialize the player with grid size, image, frames
         void placePlayer(int,int);         // place the player
         void movePlayer(char *);       // move Player left,right,up,down
         void loadArrowImage(char *);       // set an image for the Arrow
@@ -40,15 +40,11 @@ class Player
 
         bool arrowStatus;                  // arrow is active or not
         bool livePlayer;                   // Player live or dead
-
-        int gridSize;                       // Grid Size
-
     protected:
-
 
         float t;                           // Ticker for animation
         void timer();                      // Timer for animation
-
+        int gridSize;                      // Grid Size
         float unitWidth;                   // Unit width of the grid
 
     private:
