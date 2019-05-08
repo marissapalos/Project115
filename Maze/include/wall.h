@@ -31,13 +31,12 @@ class wall
 
             bool liveWall;                 // wall status (broken or not)
             GridLoc GetWallLoc;          // Grid Location of the wall
-
-
     protected:
 
     private:
               loc wallBrk;                 // viewport location of the wall
               GLuint wallTex;              // wall texture handler
+
 };
 
 #endif // WALL_H

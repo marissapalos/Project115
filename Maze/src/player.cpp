@@ -151,7 +151,7 @@ void Player::drawplayer()
 }
 
 
-void Player::initPlayer(int gSize,int frams, char *FileName)
+void Player::initPlayer(int gSize, char *FileName, int frams)
 {
     frames = frams;
     gridSize = gSize;

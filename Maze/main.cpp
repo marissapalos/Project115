@@ -6,8 +6,6 @@
 #include <string.h>
 #include <CommonThings.h>
 #include <Maze.h>
-#include <time.h>
-#include <stdlib.h>
 #include <iostream>
 #include <Timer.h>
 #include <player.h>
@@ -23,6 +21,9 @@
 
 #include <wall.h>
 #include <math.h>
+//------New-------
+#include <fstream>
+#include <sstream>
 
 /* GLUT callback Handlers */
 
@@ -31,13 +32,25 @@ using namespace std;
 Maze *M = new Maze(10);                         // Set Maze grid size
 Player *P = new Player();                       // create player
 
-wall W[100];                                    // wall with number of bricks
-Enemies E[10];                                  // create number of enemies
+
+wall W[1000];                                    // wall with number of bricks
+Enemies E[100];                                  // create number of enemies
 Timer *T0 = new Timer();                        // animation timer
-int **WallMatrix;
+
 float wWidth, wHeight;                          // display window width and Height
 float xPos,yPos;                                // Viewpoar mapping
 
+//-------New---------
+int level; //User is allowed to decide Level 1 or Level 2
+int const n = 20;
+int const m = 20;
+int matrix[n][m];
+string line; //Read one line at a time from text file
+string item; //Item could either be an enemy, wall, arrow, player, or treasure chest
+int wallCount = 0; //How many walls
+int enemyCount = 0; //How many enemies
+int x,y; //Map coordinates
+//-------------------
 
 void display(void);                             // Main Display : this runs in a loop
 
@@ -66,60 +79,83 @@ void init()
     glClearColor(0.0,0.0,0.0,0.0);
     gluOrtho2D(0, wWidth, 0, wHeight);
 
+    fstream myfile; // to read in a file
+
+    while(level != 1 && level != 2){
+    cout << "What Level would you like to play? " << endl;
+    cout << "1. Level 1 (Easy)" << endl;
+    cout << "2. Level 2 (Expert)" << endl;
+    cout << "Please enter 1 or 2" << endl;
+    cin >> level;
+}
     T0->Start();                                        // set timer to 0
 
     glEnable(GL_BLEND);                                 //display images with transparent
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    M->loadBackgroundImage("images/bak.jpg");           // Load maze background image
-    M->loadChestImage("images/chest.png");              // load chest image
-    M->placeChest(3,3);                                 // place chest in a grid
-
-    M->loadSetOfArrowsImage("images/arrwset.png");      // load set of arrows image
-    M->placeStArrws(5,3);                               // place set of arrows
-
-    P->initPlayer(M->getGridSize(),6,"images/p.png");   // initialize player pass grid size,image and number of frames
-    P->loadArrowImage("images/arr.png");                // Load arrow image
-    P->placePlayer(9,9);                                // Place player
-
-
-   WallMatrix = new int*[M->getGridSize()+1];
-
-    for(int i = 0; i <= M->getGridSize(); i++){
-
-        WallMatrix[i] = new int[M->getGridSize()+1];
-
-        for (int j = 0; j <= M->getGridSize(); j++){
-            WallMatrix[i][j] = 0;
-        }
-   }
-
-    int x = 0;
-    int y = 0;
-    srand(time(NULL));
-    for(int i=1; i< M->getGridSize();i++)
-    {
-        WallMatrix[0][i] = 1;
-        WallMatrix[i][0] = 1;
-        WallMatrix[M->getGridSize()][i] = 1;
-        WallMatrix[i][M->getGridSize()] = 1;
-        x = rand() % M->getGridSize();
-        y = rand() % M->getGridSize();
-        if (WallMatrix[x][y] == 0){
-            W[i].wallInit(M->getGridSize(),"images/wall.png");// Load walls
-            W[i].placeWall(x,y);                                // place each brick
-            WallMatrix[x][y] = 1;
-        }
+    if(level == 1){
+        M->loadBackgroundImage("images/bak.jpg");
+        myfile.open("level1.txt");
     }
 
-
-    for(int i=0; i<10;i++)
-    {
-        E[i].initEnm(M->getGridSize(),4,"images/e.png"); //Load enemy image
-        E[i].placeEnemy(float(rand()%(M->getGridSize())),float(rand()%(M->getGridSize())));
-        //place enemies random x,y
+    if(level == 2){
+        M->loadBackgroundImage("images/bak.jpg");
+        myfile.open("level2.txt");
     }
+
+    if(myfile.is_open()){
+        cout << "Yup, file is open." << endl;
+        for (int y = 0; y<20; y++){ // create an empty matrix
+                for (int x = 0; x<20; x++){
+                    matrix[x][y] = 0;
+            }
+
+        while ( getline (myfile,line) ){ //While there is still lines in file to be read
+        stringstream ss(line); //Useful for parsing files
+        ss >> item >> x >> y; // Initialize item, x, and y
+
+        if(item == "enemy"){
+            if(level == 1){
+            E[enemyCount].initEnm(M->getGridSize(),4,"images/e.png"); //Load dragon image
+            }
+            else{E[enemyCount].initEnm(M->getGridSize(),4,"images/e.png");} // Load bat image
+            E[enemyCount].placeEnemy(float(x%(M->getGridSize())),float(y%(M->getGridSize())));
+            enemyCount++;
+            }
+
+        else if(item == "wall"){
+            if(level == 1){
+                W[wallCount].wallInit(M->getGridSize(),"images/wall.png");
+            }
+
+            else{ W[wallCount].wallInit(M->getGridSize(),"images/bak.jpg");}
+
+                W[wallCount].placeWall(x,y); // place the wall
+                wallCount++; // increment the amount of walls
+                matrix[x][y] = 1; //Arrange items in matrix
+            }
+
+        else if(item =="arrow"){ // if arrow
+            M->loadSetOfArrowsImage("images/arr.png");      // load set of arrows image
+            M->placeStArrws(x,y);
+        }
+
+        else if(item =="player"){ // load player
+            P->initPlayer(M->getGridSize(),"images/k.png",6);   // initialize player pass grid size,image and number of frames
+            P->loadArrowImage("images/arr.png");                // Load arrow image
+            P->placePlayer(x,y);
+        }
+
+        else if(item =="chest"){ //load chest
+           M->loadChestImage("images/chest.png");              // load chest image
+           M->placeChest(x,y);
+            }
+        }
+    myfile.close();
 }
+}
+    }
+
 
 void display(void)
 {
@@ -145,7 +181,9 @@ void display(void)
 
         for(int i=0; i<10;i++)
         {
-        E[i].drawEnemy();
+            if(E[i].live){
+            E[i].drawEnemy();
+             }
         }
 
         glPushMatrix();
@@ -162,6 +200,7 @@ void display(void)
 
     glutSwapBuffers();
 }
+
 
 
 
@@ -237,33 +276,30 @@ void mouse(int btn, int state, int x, int y){
      glutPostRedisplay();
 };
 
-int up_counter = 0;
-int down_counter = 0;
-int left_counter = 0;
-int right_counter = 0;
-
-
 
 void Specialkeys(int key, int x, int y)
 {
-
+int up_counter;
+int down_counter;
+int left_counter;
+int right_counter;
     // Your Code here
     switch(key)
     {
     case GLUT_KEY_UP:
-        if (WallMatrix[P->getPlayerLoc().x][P->getPlayerLoc().y+1] == 0){
+        if (matrix[P->getPlayerLoc().x][P->getPlayerLoc().y+1] == 0){
             cout<< P->getPlayerLoc().x<< "    "<<P->getPlayerLoc().y<<endl;
             P->movePlayer("up");
             E[0].moveEnemy("up");
             E[1].moveEnemy("up");
             E[2].moveEnemy("up");
             up_counter = 0;
-            down_counter--;
-            //left_counter = 0;
-          //  right_counter = 0;
+            down_counter = 0;
+            left_counter = 0;
+            right_counter = 0;
             break;
         }
-        else if (WallMatrix[P->getPlayerLoc().x][P->getPlayerLoc().y+1] != 0){
+        else if (matrix[P->getPlayerLoc().x][P->getPlayerLoc().y+1] != 0){
             if (up_counter < 5){
                 cout << "Rawr Wall incoming D:< " << up_counter << endl;
                 cout << W[2].GetWallLoc.x << W[2].GetWallLoc.y << endl;
@@ -273,7 +309,6 @@ void Specialkeys(int key, int x, int y)
                 E[1].moveEnemy("up");
                 E[2].moveEnemy("up");
                 up_counter++;
-                down_counter--;
                 break;
             }
             else{
@@ -282,19 +317,19 @@ void Specialkeys(int key, int x, int y)
         }
 
     case GLUT_KEY_DOWN:
-       if (WallMatrix[P->getPlayerLoc().x][P->getPlayerLoc().y-1] == 0){
+       if (matrix[P->getPlayerLoc().x][P->getPlayerLoc().y-1] == 0){
             cout<< P->getPlayerLoc().x<< "    "<<P->getPlayerLoc().y<<endl;
             P->movePlayer("down");
             E[0].moveEnemy("down");
             E[1].moveEnemy("down");
             E[2].moveEnemy("down");
-            up_counter--;
+            up_counter = 0;
             down_counter = 0;
-           // left_counter = 0;
-           // right_counter = 0;
+            left_counter = 0;
+            right_counter = 0;
             break;
         }
-        else if (WallMatrix[P->getPlayerLoc().x][P->getPlayerLoc().y-1] != 0){
+        else if (matrix[P->getPlayerLoc().x][P->getPlayerLoc().y-1] != 0){
             if (down_counter < 5){
                 cout << "Rawr Wall incoming D:< " << up_counter << endl;
                 cout << W[2].GetWallLoc.x << W[2].GetWallLoc.y << endl;
@@ -304,8 +339,6 @@ void Specialkeys(int key, int x, int y)
                 E[1].moveEnemy("down");
                 E[2].moveEnemy("down");
                 down_counter++;
-                up_counter--;
-
                 break;
             }
             else{
@@ -314,19 +347,19 @@ void Specialkeys(int key, int x, int y)
         }
 
     case GLUT_KEY_LEFT:
-        if (WallMatrix[P->getPlayerLoc().x-1][P->getPlayerLoc().y] == 0){
+        if (matrix[P->getPlayerLoc().x-1][P->getPlayerLoc().y] == 0){
             cout<< P->getPlayerLoc().x<< "    "<<P->getPlayerLoc().y<<endl;
             P->movePlayer("left");
             E[0].moveEnemy("left");
             E[1].moveEnemy("left");
             E[2].moveEnemy("left");
-            //up_counter = 0;
-           //down_counter = 0;
+            up_counter = 0;
+            down_counter = 0;
             left_counter = 0;
-            right_counter--;
+            right_counter = 0;
             break;
         }
-        else if (WallMatrix[P->getPlayerLoc().x-1][P->getPlayerLoc().y] != 0){
+        else if (matrix[P->getPlayerLoc().x-1][P->getPlayerLoc().y] != 0){
             if (left_counter < 5){
                 cout << "Rawr Wall incoming D:< " << up_counter << endl;
                 cout << W[2].GetWallLoc.x << W[2].GetWallLoc.y << endl;
@@ -336,7 +369,6 @@ void Specialkeys(int key, int x, int y)
                 E[1].moveEnemy("left");
                 E[2].moveEnemy("left");
                 left_counter++;
-                right_counter--;
                 break;
             }
             else{
@@ -345,19 +377,19 @@ void Specialkeys(int key, int x, int y)
         }
 
     case GLUT_KEY_RIGHT:
-        if (WallMatrix[P->getPlayerLoc().x+1][P->getPlayerLoc().y] == 0){
+        if (matrix[P->getPlayerLoc().x+1][P->getPlayerLoc().y] == 0){
             cout<< P->getPlayerLoc().x<< "    "<<P->getPlayerLoc().y<<endl;
             P->movePlayer("right");
             E[0].moveEnemy("right");
             E[1].moveEnemy("right");
             E[2].moveEnemy("right");
-           // up_counter = 0;
-            //down_counter = 0;
-            left_counter--;
+            up_counter = 0;
+            down_counter = 0;
+            left_counter = 0;
             right_counter = 0;
             break;
         }
-        else if (WallMatrix[P->getPlayerLoc().x+1][P->getPlayerLoc().y] != 0){
+        else if (matrix[P->getPlayerLoc().x+1][P->getPlayerLoc().y] != 0){
             if (right_counter < 5){
                 cout << "Rawr Wall incoming D:< " << up_counter << endl;
                 cout << W[2].GetWallLoc.x << W[2].GetWallLoc.y << endl;
@@ -367,7 +399,6 @@ void Specialkeys(int key, int x, int y)
                 E[1].moveEnemy("right");
                 E[2].moveEnemy("right");
                 right_counter++;
-                left_counter--;
                 break;
             }
             else{
