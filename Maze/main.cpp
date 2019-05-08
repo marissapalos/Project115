@@ -320,7 +320,7 @@ void Specialkeys(int key, int x, int y)
             E[0].moveEnemy("left");
             E[1].moveEnemy("left");
             E[2].moveEnemy("left");
-            //up_counter = 0;
+           // up_counter = 0;
            //down_counter = 0;
             left_counter = 0;
             right_counter--;
