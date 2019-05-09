@@ -299,6 +299,20 @@ void init()
             M->placeStArrws(x,y);
         }
    }
+
+   
+
+   WallMatrix = new int*[M->getGridSize()+1];
+
+    for(int i = 0; i <= M->getGridSize(); i++){
+
+        WallMatrix[i] = new int[M->getGridSize()+1];
+
+        for (int j = 0; j <= M->getGridSize(); j++){
+            WallMatrix[i][j] = 0;
+        }
+   }
+   
    WallMatrix[M->GetChestLoc().x][M->GetChestLoc().y] = 2; //2 = Win Game
    WallMatrix[P->getArrowLoc().x][P->getArrowLoc().y] = 3; //3 = Arrows/Fireballs
 
