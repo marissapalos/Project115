@@ -443,7 +443,7 @@
 1557359660 c:\users\cvera\desktop\project115\maze\include\timer.h
 	<time.h>
 
-1557361412 c:\users\cvera\desktop\project115\maze\include\maze.h
+1557362444 c:\users\cvera\desktop\project115\maze\include\maze.h
 	<CommonThings.h>
 	<string.h>
 	<gl/gl.h>
@@ -452,7 +452,6 @@
 	<iostream>
 	<Timer.h>
 	<math.h>
-	<vector>
 
 1557359659 c:\users\cvera\desktop\project115\maze\common\inc\gl\glut.h
 	<windows.h>
@@ -463,10 +462,10 @@
 1557359660 source:c:\users\cvera\desktop\project115\maze\src\maze.cpp
 	<Maze.h>
 
-1557361412 source:c:\users\cvera\desktop\project115\maze\src\player.cpp
+1557363512 source:c:\users\cvera\desktop\project115\maze\src\player.cpp
 	<Player.h>
 
-1557361412 c:\users\cvera\desktop\project115\maze\include\player.h
+1557362444 c:\users\cvera\desktop\project115\maze\include\player.h
 	<CommonThings.h>
 	<string.h>
 	<gl/gl.h>
@@ -483,7 +482,7 @@
 	<wall.h>
 	<iostream>
 
-1557361412 c:\users\cvera\desktop\project115\maze\include\wall.h
+1557362444 c:\users\cvera\desktop\project115\maze\include\wall.h
 	<CommonThings.h>
 	<string.h>
 	<gl/gl.h>
@@ -492,4 +491,23 @@
 	<iostream>
 	<Timer.h>
 	<math.h>
+
+1557363512 source:c:\users\cvera\desktop\project115\maze\main.cpp
+	<string.h>
+	<CommonThings.h>
+	<Maze.h>
+	<time.h>
+	<stdlib.h>
+	<iostream>
+	<Timer.h>
+	<player.h>
+	<GLUT/glut.h>
+	<GL/glut.h>
+	<stdlib.h>
+	<Enemies.h>
+	<wall.h>
+	<math.h>
+	<fstream>
+	<sstream>
+	<queue>
 
