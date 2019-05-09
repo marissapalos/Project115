@@ -186,9 +186,12 @@ void init()
             WallMatrix[i][j] = 0;
         }
    }
+<<<<<<< HEAD
 
    WallMatrix[M->GetChestLoc().x][M->GetChestLoc().y] = 2; //2 = Win Game
    WallMatrix[P->getArrowLoc().x][P->getArrowLoc().y] = 3; //3 = Arrows/Fireballs
+=======
+>>>>>>> parent of ccace2e... updated Matrix for chest and arrows
 
 }
 
@@ -331,37 +334,34 @@ void Specialkeys(int key, int x, int y)
     switch(key)
     {
     case GLUT_KEY_UP:
-        if(P->livePlayer && M->liveChest){
-            if (WallMatrix[P->getPlayerLoc().x][P->getPlayerLoc().y+1] == 0){
+        if (WallMatrix[P->getPlayerLoc().x][P->getPlayerLoc().y+1] == 0){
+            cout<< P->getPlayerLoc().x<< "    "<<P->getPlayerLoc().y<<endl;
+            P->movePlayer("up");
+            E[0].moveEnemy("up");
+            E[1].moveEnemy("up");
+            E[2].moveEnemy("up");
+            up_counter = 0;
+            down_counter--;
+            //left_counter = 0;
+          //  right_counter = 0;
+            break;
+        }
+        else if (WallMatrix[P->getPlayerLoc().x][P->getPlayerLoc().y+1] != 0){
+            if (up_counter < 5){
+                cout << "Rawr Wall incoming D:< " << up_counter << endl;
+                cout << W[2].GetWallLoc.x << W[2].GetWallLoc.y << endl;
                 cout<< P->getPlayerLoc().x<< "    "<<P->getPlayerLoc().y<<endl;
                 P->movePlayer("up");
                 E[0].moveEnemy("up");
                 E[1].moveEnemy("up");
                 E[2].moveEnemy("up");
-                up_counter = 0;
+                up_counter++;
                 down_counter--;
-                //left_counter = 0;
-                //  right_counter = 0;
                 break;
             }
-            else if (WallMatrix[P->getPlayerLoc().x][P->getPlayerLoc().y+1] == 1){
-                if (up_counter < 5){
-                    cout << "Rawr Wall incoming D:< " << up_counter << endl;
-                    cout << W[2].GetWallLoc.x << W[2].GetWallLoc.y << endl;
-                    cout<< P->getPlayerLoc().x<< "    "<<P->getPlayerLoc().y<<endl;
-                    P->movePlayer("up");
-                    E[0].moveEnemy("up");
-                    E[1].moveEnemy("up");
-                    E[2].moveEnemy("up");
-                    up_counter++;
-                    down_counter--;
-                    break;
-                }
-                else{
-                    break;
-                }
+            else{
+                break;
             }
-//            if ()
         }
 
         for(int i = 0; i < enemyCount; i++)
