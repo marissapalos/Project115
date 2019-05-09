@@ -23,6 +23,10 @@
 
 #include <wall.h>
 #include <math.h>
+//------New-------
+#include <fstream>
+#include <sstream>
+#include <queue>
 
 /* GLUT callback Handlers */
 
@@ -38,6 +42,175 @@ int **WallMatrix;
 float wWidth, wHeight;                          // display window width and Height
 float xPos,yPos;                                // Viewpoar mapping
 
+//-------New---------
+int level; //User is allowed to decide Level 1 or Level 2
+int const n = 20;
+int const m = 20;
+int matrix[n][m];
+string line; //Read one line at a time from text file
+string item; //Item could either be an enemy, wall, arrow, player, or treasure chest
+int wallCount = 0; //How many walls
+int enemyCount = 0; //How many enemies
+int x,y; //Map coordinates
+
+static int closed_nodes_map[n][m]; // map of closed (tried-out) nodes
+static int open_nodes_map[n][m]; // map of open (not-yet-tried) nodes
+static int dir_map[n][m]; // map of directions
+const int dir = 4; // number of possible directions to go at any position
+static int dx[dir]={1, 0, -1, 0};
+static int dy[dir]={0, 1, 0, -1};
+//-------------------
+class node
+{
+	// current position
+	int xPos;
+	int yPos;
+	// total distance already travelled to reach the node
+	int level;
+	// priority=level+remaining distance estimate
+	int priority;  // smaller: higher priority
+
+public:
+	node(int xp, int yp, int d, int p){
+		xPos = xp; yPos = yp; level = d; priority = p;
+	}
+
+	int getxPos() const { return xPos; }
+	int getyPos() const { return yPos; }
+	int getLevel() const { return level; }
+	int getPriority() const { return priority; }
+
+	void updatePriority(const int & xDest, const int & yDest){
+		priority = level + estimate(xDest, yDest) * 10; //A*
+	}
+
+	// give better priority to going strait instead of diagonally
+	void nextLevel(const int & i){
+		level += (dir == 8 ? (i % 2 == 0 ? 10 : 14) : 10);
+		}
+
+	// Estimation function for the remaining distance to the goal.
+	const int & estimate(const int & xDest, const int & yDest) const{
+		static int xd, yd, d;
+		xd = xDest - xPos;
+		yd = yDest - yPos;
+		d=abs(xd)+abs(yd);
+		return(d);
+	}
+};
+// Determine priority (in the priority queue)
+bool operator<(const node & a, const node & b){
+	return a.getPriority() > b.getPriority();
+}
+
+string path(const int & xStart, const int & yStart, const int & xFinish, const int & yFinish){
+    static priority_queue<node> pq[2]; // list of open (not-yet-tried) nodes
+	static int pqi; // pq index
+	static node* n0;
+	static node* m0;
+	static int i, j, x, y, xdx, ydy;
+	static char c;
+	pqi = 0;
+
+	// reset the node maps
+	for (y = 0; y<m; y++){
+		for (x = 0; x<n; x++){
+			closed_nodes_map[x][y] = 0;
+			open_nodes_map[x][y] = 0;
+		}
+	}
+
+	// create the start node and push into list of open nodes
+	n0 = new node(xStart, yStart, 0, 0);
+	n0->updatePriority(xFinish, yFinish);
+	pq[pqi].push(*n0);
+	open_nodes_map[x][y] = n0->getPriority(); // mark it on the open nodes map
+
+											  // A* search
+	while (!pq[pqi].empty()){
+		// get the current node w/ the highest priority
+		// from the list of open nodes
+		n0 = new node(pq[pqi].top().getxPos(), pq[pqi].top().getyPos(),
+			pq[pqi].top().getLevel(), pq[pqi].top().getPriority());
+
+		x = n0->getxPos(); y = n0->getyPos();
+
+		pq[pqi].pop(); // remove the node from the open list
+		open_nodes_map[x][y] = 0;
+		// mark it on the closed nodes map
+		closed_nodes_map[x][y] = 1;
+
+		// quit searching when the goal state is reached
+		//if((*n0).estimate(xFinish, yFinish) == 0)
+		if (x == xFinish && y == yFinish){
+			// generate the path from finish to start
+			// by following the directions
+			string path = "";
+			while (!(x == xStart && y == yStart)){
+				j = dir_map[x][y];
+				c = '0' + (j + dir / 2) % dir;
+				path = c + path;
+				x += dx[j];
+				y += dy[j];
+			}
+
+			// garbage collection
+			delete n0;
+			// empty the leftover nodes
+			while (!pq[pqi].empty()) pq[pqi].pop();
+			return path;
+		}
+
+		// generate moves (child nodes) in all possible directions
+		for (i = 0; i<dir; i++){
+			xdx = x + dx[i]; ydy = y + dy[i];
+
+			if (!(xdx<0 || xdx>n - 1 || ydy<0 || ydy>m - 1 || matrix[xdx][ydy] == 1 || closed_nodes_map[xdx][ydy] == 1)){
+				// generate a child node
+				m0 = new node(xdx, ydy, n0->getLevel(),
+					n0->getPriority());
+				m0->nextLevel(i);
+				m0->updatePriority(xFinish, yFinish);
+
+				// if it is not in the open list then add into that
+				if (open_nodes_map[xdx][ydy] == 0){
+					open_nodes_map[xdx][ydy] = m0->getPriority();
+					pq[pqi].push(*m0);
+					// mark its parent node direction
+					dir_map[xdx][ydy] = (i + dir / 2) % dir;
+				}
+				else if (open_nodes_map[xdx][ydy]>m0->getPriority()){
+					// update the priority info
+					open_nodes_map[xdx][ydy] = m0->getPriority();
+					// update the parent direction info
+					dir_map[xdx][ydy] = (i + dir / 2) % dir;
+
+					// replace the node
+					// by emptying one pq to the other one
+					// except the node to be replaced will be ignored
+					// and the new node will be pushed in instead
+					while (!(pq[pqi].top().getxPos() == xdx && pq[pqi].top().getyPos() == ydy)){
+						pq[1 - pqi].push(pq[pqi].top());
+						pq[pqi].pop();
+					}
+					pq[pqi].pop(); // remove the wanted node
+
+								   // empty the larger size pq to the smaller one
+					if (pq[pqi].size()>pq[1 - pqi].size()) pqi = 1 - pqi;
+					while (!pq[pqi].empty()){
+						pq[1 - pqi].push(pq[pqi].top());
+						pq[pqi].pop();
+					}
+					pqi = 1 - pqi;
+					pq[pqi].push(*m0); // add the better node instead
+				}
+				else delete m0; // garbage collection
+			}
+		}
+		delete n0; // garbage collection
+	}
+return ""; // no route found
+}
 
 void display(void);                             // Main Display : this runs in a loop
 
@@ -92,26 +265,41 @@ void init()
         for (int j = 0; j <= M->getGridSize(); j++){
             WallMatrix[i][j] = 0;
         }
+        else if(item =="player"){ // load player
+            P->initPlayer(M->getGridSize(),"images/k.png",6);   // initialize player pass grid size,image and number of frames
+            P->loadArrowImage("images/arr.png");                // Load arrow image
+            P->placePlayer(x,y);
+        }
+
+        else if(item =="chest"){ //load chest
+           M->loadChestImage("images/chest.png");              // load chest image
+           M->placeChest(x,y);
+            }
+        }
    }
+
+
+
+
+
+    myfile.close();
+
+    int **WallMatrix = new int*[M->getGridSize()+1];
+
+    for(int i = 0; i <= M->getGridSize(); i++){
+
+        WallMatrix[i] = new int[M->getGridSize()+1];
+
+        for (int j = 0; j <= M->getGridSize(); j++){
+            WallMatrix[i][j] = 0;
+        }
+   }
+
    WallMatrix[M->GetChestLoc().x][M->GetChestLoc().y] = 2; //2 = Win Game
    WallMatrix[P->getArrowLoc().x][P->getArrowLoc().y] = 3; //3 = Arrows/Fireballs
 
-    int x = 0;
-    int y = 0;
-    srand(time(NULL));
-    for(int i=1; i< M->getGridSize();i++)
-    {
-        WallMatrix[0][i] = 1;
-        WallMatrix[i][0] = 1;
-        WallMatrix[M->getGridSize()][i] = 1;
-        WallMatrix[i][M->getGridSize()] = 1;
-        x = rand() % M->getGridSize();
-        y = rand() % M->getGridSize();
-        if (WallMatrix[x][y] == 0){
-            W[i].wallInit(M->getGridSize(),"images/wall.png");// Load walls
-            W[i].placeWall(x,y);                                // place each brick
-            WallMatrix[x][y] = 1;
-        }
+}
+
     }
 
 
@@ -240,11 +428,9 @@ void mouse(int btn, int state, int x, int y){
 };
 
 int up_counter = 0;
+int right_counter = 0;
 int down_counter = 0;
 int left_counter = 0;
-int right_counter = 0;
-
-
 
 void Specialkeys(int key, int x, int y)
 {
@@ -286,6 +472,22 @@ void Specialkeys(int key, int x, int y)
 //            if ()
         }
 
+        for(int i = 0; i < enemyCount; i++)
+        {
+            if (E[i].live){ //If enemies are still alive
+                if((P->getPlayerLoc().x == E[i].getEnemyLoc().x) && (P->getPlayerLoc().y == E[i].getEnemyLoc().y)){
+                        P->livePlayer = false;}  //Player dies
+                else{
+                    string enemyPath = path(E[i].getEnemyLoc().x, E[i].getEnemyLoc().y, P->getPlayerLoc().x, P->getPlayerLoc().y);
+                    if(enemyPath[0] == '0'){ E[i].moveEnemy("right");}
+                    else if(enemyPath[0] == '1'){ E[i].moveEnemy("up");}
+                    else if(enemyPath[0] == '2'){ E[i].moveEnemy("left");}
+                    else{ E[i].moveEnemy("down");}
+                }
+        }}
+
+        break;
+
     case GLUT_KEY_DOWN:
        if (WallMatrix[P->getPlayerLoc().x][P->getPlayerLoc().y-1] == 0){
             cout<< P->getPlayerLoc().x<< "    "<<P->getPlayerLoc().y<<endl;
@@ -317,6 +519,19 @@ void Specialkeys(int key, int x, int y)
                 break;
             }
         }
+        for(int i = 0; i < enemyCount; i++){
+                 if(E[i].live){
+         if((P->getPlayerLoc().x == E[i].getEnemyLoc().x) && (P->getPlayerLoc().y == E[i].getEnemyLoc().y)){
+            P->livePlayer = false;}
+              else{
+            string route = path( E[i].getEnemyLoc().x, E[i].getEnemyLoc().y , P->getPlayerLoc().x, P->getPlayerLoc().y);
+          if(route[0] == '0'){E[i].moveEnemy("right");}
+          else if(route[0] == '1'){E[i].moveEnemy("up");}
+          else if(route[0] == '2'){E[i].moveEnemy("left");}
+          else{E[i].moveEnemy("down");}
+              }
+                 }
+        }
 
     case GLUT_KEY_LEFT:
         if (WallMatrix[P->getPlayerLoc().x-1][P->getPlayerLoc().y] == 0){
@@ -345,6 +560,20 @@ void Specialkeys(int key, int x, int y)
             else{
                 break;
             }
+        }
+
+        for(int i = 0; i < enemyCount; i++){
+             if(E[i].live){
+         if((P->getPlayerLoc().x == E[i].getEnemyLoc().x) && (P->getPlayerLoc().y == E[i].getEnemyLoc().y)){
+            P->livePlayer = false;}
+              else{
+            string route = path( E[i].getEnemyLoc().x, E[i].getEnemyLoc().y , P->getPlayerLoc().x, P->getPlayerLoc().y);
+            if(route[0] == '0'){E[i].moveEnemy("right");}
+            else if(route[0] == '1'){E[i].moveEnemy("up");}
+            else if(route[0] == '2'){E[i].moveEnemy("left");}
+            else{E[i].moveEnemy("down");}
+              }
+             }
         }
 
     case GLUT_KEY_RIGHT:
@@ -376,9 +605,24 @@ void Specialkeys(int key, int x, int y)
             }
         }
 
+        for(int i = 0; i < enemyCount; i++){
+            if(E[i].live){
+         if((P->getPlayerLoc().x == E[i].getEnemyLoc().x) && (P->getPlayerLoc().y == E[i].getEnemyLoc().y)){
+            P->livePlayer = false;}
+              else{
+            string route = path( E[i].getEnemyLoc().x, E[i].getEnemyLoc().y , P->getPlayerLoc().x, P->getPlayerLoc().y);
+           if(route[0] == '0'){E[i].moveEnemy("right");}
+           else if(route[0] == '1'){E[i].moveEnemy("up");}
+           else if(route[0] == '2'){E[i].moveEnemy("left");}
+           else{E[i].moveEnemy("down");}
+
+}
+}}
+
    }
   glutPostRedisplay();
 }
+
 
 
 /* Program entry point */
