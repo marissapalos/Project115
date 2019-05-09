@@ -256,8 +256,6 @@ void init()
     P->placePlayer(9,9);                                // Place player
 
 
-   WallMatrix = new int*[M->getGridSize()+1];
-
     for(int i = 0; i <= M->getGridSize(); i++){
 
         WallMatrix[i] = new int[M->getGridSize()+1];
