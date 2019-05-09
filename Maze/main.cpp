@@ -298,24 +298,6 @@ void init()
             M->loadSetOfArrowsImage("images/arr.png");      // load set of arrows image
             M->placeStArrws(x,y);
         }
-   }
-
-   
-
-   WallMatrix = new int*[M->getGridSize()+1];
-
-    for(int i = 0; i <= M->getGridSize(); i++){
-
-        WallMatrix[i] = new int[M->getGridSize()+1];
-
-        for (int j = 0; j <= M->getGridSize(); j++){
-            WallMatrix[i][j] = 0;
-        }
-   }
-   
-   WallMatrix[M->GetChestLoc().x][M->GetChestLoc().y] = 2; //2 = Win Game
-   WallMatrix[P->getArrowLoc().x][P->getArrowLoc().y] = 3; //3 = Arrows/Fireballs
-
         else if(item =="player"){ // load player
             P->initPlayer(M->getGridSize(),"images/k.png",6);   // initialize player pass grid size,image and number of frames
             P->loadArrowImage("images/arr.png");                // Load arrow image
@@ -327,9 +309,30 @@ void init()
            M->placeChest(x,y);
             }
         }
+   }
+
+
+
+
+
     myfile.close();
+
+    int **WallMatrix = new int*[M->getGridSize()+1];
+
+    for(int i = 0; i <= M->getGridSize(); i++){
+
+        WallMatrix[i] = new int[M->getGridSize()+1];
+
+        for (int j = 0; j <= M->getGridSize(); j++){
+            WallMatrix[i][j] = 0;
+        }
+   }
+
+   WallMatrix[M->GetChestLoc().x][M->GetChestLoc().y] = 2; //2 = Win Game
+   WallMatrix[P->getArrowLoc().x][P->getArrowLoc().y] = 3; //3 = Arrows/Fireballs
+
 }
-}
+
     }
 
 
